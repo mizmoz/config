@@ -2,7 +2,6 @@
 
 namespace Mizmoz\Config;
 
-use Mizmoz\Config\Contract\ConfigInterface;
 use Mizmoz\Config\Contract\EnvironmentInterface;
 use Mizmoz\Config\Exception\UnknownEnvironmentException;
 
@@ -76,7 +75,7 @@ class Environment implements EnvironmentInterface
         $this->projectRoot = realpath($projectRoot);
         $this->default = $default;
 
-        $filename = $this->projectRoot . '/.env';
+        $filename = $this->projectRoot . '/.environment';
         if (! $this->projectRoot || ! file_exists($filename)) {
             return $default;
         }

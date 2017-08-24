@@ -4,7 +4,7 @@
 
 - Be lightweight
 - Configs are just php files which return arrays
-- Environment set using .env file
+- Environment set using .environment file
 - Lazy load config files
 
 ## Getting Started
@@ -16,6 +16,14 @@ composer require mizmoz/config
 ```
 
 ### Basic Usage
+
+##### Set the environment
+
+Create a file in the root of the project called .environment which should contain the current platform
+
+To set as development:
+
+`echo 'development' > /my/project/root/.environment`
 
 ##### Load a configuration from an array
 
