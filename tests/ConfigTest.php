@@ -4,6 +4,7 @@ namespace Mizmoz\Config\Tests;
 
 use Mizmoz\Config\Config;
 use Mizmoz\Config\Environment;
+use Mizmoz\Config\Using;
 
 class ConfigTest extends TestCase
 {
@@ -68,5 +69,42 @@ class ConfigTest extends TestCase
 
         $this->assertSame('Test', $config->get('app.name'));
         $this->assertSame('1.0.0', $config->get('app.version'));
+    }
+
+    /**
+     * Test we can use the reference syntax to get values
+     */
+    public function testGetWithReference()
+    {
+        $config = new Config([
+            'default' => 'mysql',
+            'mysql' => 3306,
+        ]);
+
+        $this->assertSame(3306, $config->get('${default}'));
+    }
+
+    /**
+     * Test we can use the reference syntax to get values
+     */
+    public function testGetWithDeepReference()
+    {
+        $config = new Config([
+            'db' => [
+                'default' => 'mysql',
+                'extended' => [
+                    'name' => 'mysql'
+                ],
+                'mysql' => 3306,
+            ]
+        ]);
+
+        $this->assertSame(3306, $config->get('db.${db.default}'));
+
+        // using relative syntax
+        $this->assertSame(3306, $config->get('db.${.default}'));
+
+        // using extended relative syntax
+        $this->assertSame(3306, $config->get('db.${.extended.name}'));
     }
 }

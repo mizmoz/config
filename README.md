@@ -58,3 +58,26 @@ $config = Config::fromEnvironment(new Environment(__DIR__));
 $config->get('db.type'); // mongo
 $config->get('db.hostname'); // localhost
 ```
+
+##### Accessing the configs
+
+```php
+$config = new Config([
+    'db' => [
+        'default' => 'mysql',
+        'mysql' => 3306,
+    ]
+]);
+
+
+# Basic accessing using dot notation
+$config->get('db.default');
+
+# Accessing with other config values referenced
+$config->get('db.${db.default}');
+
+# Accessing with relative references
+$config->get('db.${.default}');
+
+
+```

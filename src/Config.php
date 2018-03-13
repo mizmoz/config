@@ -26,6 +26,40 @@ class Config implements ConfigInterface
     }
 
     /**
+     * Parse any references in the name
+     *
+     * @param $name
+     * @return string
+     */
+    private function parseReferences($name): string
+    {
+        if (preg_match_all('/\$\{(.*[a-z\.0-9])\}/si', $name, $results, PREG_SET_ORDER)) {
+            foreach ($results as $match) {
+                $replace = $match[0];
+                $key = $match[1];
+
+                // Handle using relative placement like get('db.${.default}.host');
+                if (strpos($key, '.') === 0) {
+                    // using relative placement
+                    $key = substr($name, 0, strpos($name, $replace) - 1) . $key;
+                }
+
+                // get the value
+                $value = $this->get($key);
+                if ($value === null || $value === '' || $value === false) {
+                    throw new InvalidArgumentException(
+                        $key . ' replacement for ' . $name . ' must not be null or empty'
+                    );
+                }
+
+                $name = str_replace($replace, $value, $name);
+            }
+        }
+
+        return $name;
+    }
+
+    /**
      * @inheritDoc
      */
     public function addNamespace(string $name, $config): ConfigInterface
@@ -50,6 +84,10 @@ class Config implements ConfigInterface
      */
     public function get(string $name, $defaultValue = null)
     {
+        // check for any references
+        $name = $this->parseReferences($name);
+
+        // split the name
         $parts = explode('.', $name);
         $namespace = array_shift($parts);
 
