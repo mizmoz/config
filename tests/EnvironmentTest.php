@@ -21,4 +21,14 @@ class EnvironmentTest extends TestCase
     {
         $this->assertSame(Environment::ENV_DEVELOPMENT, Environment::get(__DIR__));
     }
+
+    /**
+     * Manually create an environment
+     */
+    public function testCreateEnvironment()
+    {
+        $env = new Environment(Environment::ENV_TESTING, __DIR__);
+        $this->assertSame('testing', $env->name());
+        $this->assertSame(__DIR__, $env->projectRoot());
+    }
 }

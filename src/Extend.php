@@ -1,6 +1,7 @@
 <?php
 
 namespace Mizmoz\Config;
+
 use Mizmoz\Config\Contract\EnvironmentInterface;
 use Mizmoz\Config\Contract\Resolver\ExtendInterface;
 use Mizmoz\Config\Contract\ResolverInterface;
@@ -55,6 +56,7 @@ class Extend implements ExtendInterface
      * @param $name
      * @param $arguments
      * @return mixed
+     * @throws \ReflectionException
      */
     public static function __callStatic($name, $arguments)
     {

@@ -10,12 +10,12 @@ class Environment implements EnvironmentInterface
     /**
      * @var string
      */
-    private $projectRoot;
+    private $name;
 
     /**
      * @var string
      */
-    private $default;
+    private $projectRoot;
 
     /**
      * @var array
@@ -23,18 +23,30 @@ class Environment implements EnvironmentInterface
     private $allowed = [];
 
     /**
-     * @var string
+     * Create the environment
+     *
+     * @param string $name
+     * @param string $projectRoot
+     * @param array $allowed
      */
-    private $name;
+    public function __construct(string $name, string $projectRoot, array $allowed = [])
+    {
+        $this->name = $name;
+        $this->projectRoot = $projectRoot;
+        $this->allowed = $allowed;
+    }
 
     /**
-     * Init with the allowed environments
+     * Create the environment using the default params and by searching the .environment file.
      *
      * @param string $projectRoot
      * @param string $default
      * @param array $allowed
+     * @return EnvironmentInterface
      */
-    public function __construct(string $projectRoot, $default = self::ENV_PRODUCTION, array $allowed = [])
+    public static function create(
+        string $projectRoot, $default = self::ENV_PRODUCTION, array $allowed = []
+    ): EnvironmentInterface
     {
         if (! $allowed) {
             $allowed = [
@@ -45,7 +57,24 @@ class Environment implements EnvironmentInterface
             ];
         }
 
-        $this->name = $this->setup($projectRoot, $default, $allowed);
+        $projectRoot = realpath($projectRoot);
+
+        $filename = $projectRoot . '/.environment';
+        if (! $projectRoot || ! file_exists($filename)) {
+            return new static($default, $projectRoot);
+        }
+
+        // get the environment name
+        $name = file_get_contents($filename);
+
+        if (! in_array($name, $allowed)) {
+            throw new UnknownEnvironmentException(
+                'Unknown environment "' . $name . '". Either add to the allowed list or provide one of: '
+                . join(', ', $allowed)
+            );
+        }
+
+        return new static($name, $projectRoot);
     }
 
     /**
@@ -58,45 +87,19 @@ class Environment implements EnvironmentInterface
      */
     public static function get(string $projectRoot, $default = self::ENV_PRODUCTION, array $allowed = []): string
     {
-        return (new static($projectRoot, $default, $allowed))->name();
+        return (static::create($projectRoot, $default, $allowed))->name();
     }
 
     /**
-     * Setup the environment
-     *
-     * @param string $projectRoot
-     * @param string $default
-     * @param array $allowed
-     * @return string
+     * @inheritDoc
      */
-    private function setup(string $projectRoot, $default = self::ENV_PRODUCTION, array $allowed): string
+    public function allowed(): array
     {
-        $this->allowed = $allowed;
-        $this->projectRoot = realpath($projectRoot);
-        $this->default = $default;
-
-        $filename = $this->projectRoot . '/.environment';
-        if (! $this->projectRoot || ! file_exists($filename)) {
-            return $default;
-        }
-
-        // get the environment name
-        $name = file_get_contents($filename);
-
-        if (! in_array($name, $this->allowed)) {
-            throw new UnknownEnvironmentException(
-                'Unknown environment "' . $name . '". Either add to the allowed list or provide one of: '
-                . join(', ', $this->allowed)
-            );
-        }
-
-        return $name;
+        return $this->allowed;
     }
 
     /**
-     * Get the current environment
-     *
-     * @return string
+     * @inheritDoc
      */
     public function name(): string
     {
@@ -104,9 +107,7 @@ class Environment implements EnvironmentInterface
     }
 
     /**
-     * Get the project root
-     *
-     * @return string
+     * @inheritDoc
      */
     public function projectRoot(): string
     {

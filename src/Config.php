@@ -214,4 +214,9 @@ class Config implements ConfigInterface
 
         return new static($config);
     }
+
+    public function __invoke($name, $defaultValue = null)
+    {
+        return $this->get($name, $defaultValue);
+    }
 }

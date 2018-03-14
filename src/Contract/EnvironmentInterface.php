@@ -10,6 +10,13 @@ interface EnvironmentInterface
     const ENV_DEVELOPMENT = 'development';
 
     /**
+     * Get a list of the allowed environments
+     *
+     * @return array
+     */
+    public function allowed(): array;
+
+    /**
      * Get the current environment
      *
      * @return string

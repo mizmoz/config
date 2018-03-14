@@ -21,6 +21,19 @@ class ConfigTest extends TestCase
         $this->assertSame(1, $config->get('app.version', 1));
     }
 
+    public function testInvokeAccess()
+    {
+        $config = new Config([
+            'app' => [
+                'name' => 'Mizmoz Config'
+            ]
+        ]);
+
+        $this->assertSame('Mizmoz Config', $config('app.name'));
+        $this->assertSame(null, $config('app.version'));
+        $this->assertSame(1, $config('app.version', 1));
+    }
+
     public function testCreateFromDirectory()
     {
         $config = Config::fromDirectory(realpath(__DIR__ . '/config'));
@@ -46,7 +59,7 @@ class ConfigTest extends TestCase
      */
     public function testGetEnvironmentConfig()
     {
-        $config = Config::fromEnvironment(new Environment(__DIR__));
+        $config = Config::fromEnvironment(Environment::create(__DIR__));
         $this->assertSame('Super App', $config->get('app.name'));
         $this->assertSame('localhost', $config->get('db.default.host'));
         $this->assertSame('development', $config->get('environment.name'));
