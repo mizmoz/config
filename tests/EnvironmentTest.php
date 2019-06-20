@@ -6,12 +6,23 @@ use Mizmoz\Config\Environment;
 
 class EnvironmentTest extends TestCase
 {
+    use PreserveSystemGlobalsTrait;
+
     /**
      * Should return the default environment which is production
      */
     public function testGetDefaultEnvironment()
     {
         $this->assertSame(Environment::ENV_PRODUCTION, Environment::get('/tmp/thisshouldnotexistjustforthetest'));
+    }
+
+    /**
+     * Test getting the environment from the .env file
+     */
+    public function testGetEnvironmentFromEnv()
+    {
+        $_ENV['ENVIRONMENT'] = Environment::ENV_STAGING;
+        $this->assertSame(Environment::ENV_STAGING, Environment::get(__DIR__));
     }
 
     /**

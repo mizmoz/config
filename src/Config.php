@@ -4,6 +4,7 @@ namespace Mizmoz\Config;
 
 use Mizmoz\Config\Contract\ConfigInterface;
 use Mizmoz\Config\Contract\EnvironmentInterface;
+use Mizmoz\Config\Contract\OverrideInterface;
 use Mizmoz\Config\Contract\ResolverInterface;
 use Mizmoz\Config\Exception\InvalidArgumentException;
 use Mizmoz\Config\Exception\NamespaceAlreadyExistsException;
@@ -23,6 +24,14 @@ class Config implements ConfigInterface
     public function __construct(array $config = [])
     {
         $this->config = $config;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function addOverride(OverrideInterface $override): ConfigInterface
+    {
+        return $override->override($this);
     }
 
     /**
@@ -124,6 +133,10 @@ class Config implements ConfigInterface
         foreach ($parts as $key) {
             if (! array_key_exists($key, $config)) {
                 $config[$key] = [];
+            }
+
+            if ($config[$key] instanceof ResolverInterface) {
+                $config[$key] = $config[$key]->resolve();
             }
 
             $config = &$config[$key];

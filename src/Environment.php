@@ -59,6 +59,12 @@ class Environment implements EnvironmentInterface
 
         $projectRoot = realpath($projectRoot);
 
+        // first check if the ENV has been set
+        if (array_key_exists('ENVIRONMENT', $_ENV) && in_array($_ENV['ENVIRONMENT'], $allowed)) {
+            return new static($_ENV['ENVIRONMENT'], $projectRoot);
+        }
+
+        // fallback to the file
         $filename = $projectRoot . '/.environment';
         if (! $projectRoot || ! file_exists($filename)) {
             return new static($default, $projectRoot);

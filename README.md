@@ -5,6 +5,7 @@
 - Be lightweight
 - Configs are just php files which return arrays
 - Environment set using .environment file
+- Overridable by environment variables
 - Lazy load config files
 
 ## Getting Started
@@ -24,6 +25,10 @@ Create a file in the root of the project called .environment which should contai
 To set as development:
 
 `echo 'development' > /my/project/root/.environment`
+
+Alternatively use system environment
+
+`export ENVIRONMENT=development`
 
 ##### Load a configuration from an array
 
@@ -57,6 +62,50 @@ return \Mizmoz\Config\Extend::production('db', [
 $config = Config::fromEnvironment(Environment::create(__DIR__));
 $config->get('db.type'); // mongo
 $config->get('db.hostname'); // localhost
+```
+
+##### Override the config values
+
+```php
+# Using the envrionment override to ensure any values that come from the environment variables are treated as priority
+# Assuming we do something like:
+# export MM_DB_PORT=3333
+$config = new Config([
+    'db' => [
+        'default' => 'mysql',
+        'port' => 3306,
+    ]
+]);
+
+$config->addOverride(new Env);
+
+# Access the value of 3333
+$config->get('db.port');
+```
+
+```php
+# The same can be done for cli arguments so:
+# php my-script.php MM_DB_PORT=5555
+$config = new Config([
+    'db' => [
+        'default' => 'mysql',
+        'port' => 3306,
+    ]
+]);
+
+$config->addOverride(new Args);
+
+# Access the value of 5555
+$config->get('db.port');
+```
+
+```php
+# These can be chained with last priority so using the above example:
+# Returns 5555
+$config->addOverride(new Env)
+    ->addOverride(new Args)
+    ->get('db.port');
+
 ```
 
 ##### Accessing the configs

@@ -4,10 +4,12 @@ namespace Mizmoz\Config\Tests;
 
 use Mizmoz\Config\Config;
 use Mizmoz\Config\Environment;
-use Mizmoz\Config\Using;
+use Mizmoz\Config\Override\Env;
 
 class ConfigTest extends TestCase
 {
+    use PreserveSystemGlobalsTrait;
+
     public function testCreateFromArray()
     {
         $config = new Config([
@@ -54,6 +56,30 @@ class ConfigTest extends TestCase
         $this->assertSame('cache.host.com', $config->get('cache.memcache.host'));
     }
 
+    public function testAddOverride()
+    {
+        $config = new Config([
+            'version' => '1.1.1',
+            'greeting' => 'hello',
+            'app' => [
+                'name' => 'Mizmoz Config',
+                'url' => 'https://www.mizmoz.com/'
+            ]
+        ]);
+
+        // set some environment variables
+        $_ENV['MM_VERSION'] = '2.0.0';
+        $_ENV['MM_APP_URL'] = 'https://www.github.com/mizmoz/config';
+
+        // add the overrides
+        $config->addOverride(new Env());
+
+        $this->assertSame('2.0.0', $config->get('version'));
+        $this->assertSame('hello', $config->get('greeting'));
+        $this->assertSame('Mizmoz Config', $config->get('app.name'));
+        $this->assertSame('https://www.github.com/mizmoz/config', $config->get('app.url'));
+    }
+
     /**
      * Get the configuration from the supplied directory for the current environment
      */
@@ -82,6 +108,17 @@ class ConfigTest extends TestCase
 
         $this->assertSame('Test', $config->get('app.name'));
         $this->assertSame('1.0.0', $config->get('app.version'));
+    }
+
+    /**
+     * Test setting a value when the config requires resolving
+     */
+    public function testSetValueWithResolver()
+    {
+        $config = Config::fromEnvironment(Environment::create(__DIR__))->set('app.name', 'Setter');
+        $this->assertSame('Setter', $config->get('app.name'));
+        $this->assertSame('localhost', $config->get('db.default.host'));
+        $this->assertSame('development', $config->get('environment.name'));
     }
 
     /**
