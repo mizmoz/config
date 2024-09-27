@@ -4,15 +4,15 @@ namespace Mizmoz\Config\Contract;
 
 interface EnvironmentInterface
 {
-    const ENV_PRODUCTION = 'production';
-    const ENV_STAGING = 'staging';
-    const ENV_TESTING = 'testing';
-    const ENV_DEVELOPMENT = 'development';
+    const string ENV_PRODUCTION = 'production';
+    const string ENV_STAGING = 'staging';
+    const string ENV_TESTING = 'testing';
+    const string ENV_DEVELOPMENT = 'development';
 
     /**
      * Get a list of the allowed environments
      *
-     * @return array
+     * @return string[]
      */
     public function allowed(): array;
 

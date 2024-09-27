@@ -9,7 +9,7 @@ class ExtendTest extends TestCase
     /**
      * Test extending a config file
      */
-    public function testExtending()
+    public function testExtending(): void
     {
         $extend = Extend::production('db', [
             'default' => [
@@ -30,7 +30,7 @@ class ExtendTest extends TestCase
     /**
      * By default calling Extend::production('db', ...) should find the config directory used
      */
-    public function testExtendingFromConfigDirectory()
+    public function testExtendingFromConfigDirectory(): void
     {
         $extend = require realpath(__DIR__ . '/config') . '/' . 'db.development.php';
         $config = $extend->resolve();

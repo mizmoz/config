@@ -20,28 +20,28 @@ class Extend implements ExtendInterface
     /**
      * @var string
      */
-    private $directory;
+    private string $directory;
 
     /**
      * @var string
      */
-    private $environment;
+    private string $environment;
 
     /**
      * @var string
      */
-    private $name;
+    private string $name;
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $config;
+    private array $config;
 
     /**
      * Extend constructor.
      * @param string $environment
      * @param string $name
-     * @param array $config
+     * @param array<string, mixed> $config
      */
     public function __construct(string $environment, string $name, array $config = [])
     {
@@ -53,17 +53,17 @@ class Extend implements ExtendInterface
     /**
      * Extend the item.
      *
-     * @param $name
-     * @param $arguments
+     * @param string $name
+     * @param mixed[] $arguments
      * @return mixed
      * @throws \ReflectionException
      */
-    public static function __callStatic($name, $arguments)
+    public static function __callStatic(string $name, array $arguments)
     {
         // add the name to the arguments
         array_unshift($arguments, $name);
 
-        // create the new extend instance
+        // create the new extended instance
         $reflection = new \ReflectionClass(static::class);
         $extend = $reflection->newInstanceArgs($arguments);
 
@@ -74,7 +74,7 @@ class Extend implements ExtendInterface
     /**
      * @inheritDoc
      */
-    public function resolve()
+    public function resolve(): ResolverInterface|array
     {
         $configFile = $this->directory . '/' . $this->name .
             ($this->environment === EnvironmentInterface::ENV_PRODUCTION ? '' : '.' . $this->environment) . '.php';

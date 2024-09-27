@@ -10,24 +10,24 @@ class Environment implements EnvironmentInterface
     /**
      * @var string
      */
-    private $name;
+    private string $name;
 
     /**
      * @var string
      */
-    private $projectRoot;
+    private string $projectRoot;
 
     /**
-     * @var array
+     * @var string[]
      */
-    private $allowed = [];
+    private array $allowed;
 
     /**
      * Create the environment
      *
      * @param string $name
      * @param string $projectRoot
-     * @param array $allowed
+     * @param string[] $allowed
      */
     public function __construct(string $name, string $projectRoot, array $allowed = [])
     {
@@ -41,11 +41,14 @@ class Environment implements EnvironmentInterface
      *
      * @param string $projectRoot
      * @param string $default
-     * @param array $allowed
+     * @param string[] $allowed
      * @return EnvironmentInterface
      */
     public static function create(
-        string $projectRoot, $default = self::ENV_PRODUCTION, array $allowed = []
+        string $projectRoot,
+        string $default = self::ENV_PRODUCTION,
+        array $allowed = [],
+        string $environmentFile = '.environment'
     ): EnvironmentInterface
     {
         if (! $allowed) {
@@ -61,13 +64,13 @@ class Environment implements EnvironmentInterface
 
         // first check if the ENV has been set
         if (array_key_exists('ENVIRONMENT', $_ENV) && in_array($_ENV['ENVIRONMENT'], $allowed)) {
-            return new static($_ENV['ENVIRONMENT'], $projectRoot);
+            return new self($_ENV['ENVIRONMENT'], $projectRoot);
         }
 
         // fallback to the file
-        $filename = $projectRoot . '/.environment';
+        $filename = $projectRoot . '/' . $environmentFile;
         if (! $projectRoot || ! file_exists($filename)) {
-            return new static($default, $projectRoot);
+            return new self($default, $projectRoot);
         }
 
         // get the environment name
@@ -80,7 +83,7 @@ class Environment implements EnvironmentInterface
             );
         }
 
-        return new static($name, $projectRoot);
+        return new self($name, $projectRoot);
     }
 
     /**
@@ -88,10 +91,10 @@ class Environment implements EnvironmentInterface
      *
      * @param string $projectRoot
      * @param string $default
-     * @param array $allowed
+     * @param string[] $allowed
      * @return string
      */
-    public static function get(string $projectRoot, $default = self::ENV_PRODUCTION, array $allowed = []): string
+    public static function get(string $projectRoot, string $default = self::ENV_PRODUCTION, array $allowed = []): string
     {
         return (static::create($projectRoot, $default, $allowed))->name();
     }

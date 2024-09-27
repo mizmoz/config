@@ -13,13 +13,13 @@ use Mizmoz\Config\Resolver\File;
 class Config implements ConfigInterface
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
-    private $config = [];
+    private array $config;
 
     /**
      * Config constructor.
-     * @param array $config
+     * @param array<string, mixed> $config
      */
     public function __construct(array $config = [])
     {
@@ -37,18 +37,18 @@ class Config implements ConfigInterface
     /**
      * Parse any references in the name
      *
-     * @param $name
+     * @param string $name
      * @return string
      */
-    private function parseReferences($name): string
+    private function parseReferences(string $name): string
     {
-        if (preg_match_all('/\$\{(.*[a-z\.0-9])\}/si', $name, $results, PREG_SET_ORDER)) {
+        if (preg_match_all('/\$\{(.*[a-z.0-9])}/si', $name, $results, PREG_SET_ORDER)) {
             foreach ($results as $match) {
                 $replace = $match[0];
                 $key = $match[1];
 
                 // Handle using relative placement like get('db.${.default}.host');
-                if (strpos($key, '.') === 0) {
+                if (str_starts_with($key, '.')) {
                     // using relative placement
                     $key = substr($name, 0, strpos($name, $replace) - 1) . $key;
                 }
@@ -71,14 +71,8 @@ class Config implements ConfigInterface
     /**
      * @inheritDoc
      */
-    public function addNamespace(string $name, $config): ConfigInterface
+    public function addNamespace(string $name, ResolverInterface|array $config): ConfigInterface
     {
-        if (! is_array($config) && ! $config instanceof ResolverInterface) {
-            throw new InvalidArgumentException(
-                __METHOD__ . ' $config must be either an array or ' . ResolverInterface::class
-            );
-        }
-
         if (array_key_exists($name, $this->config)) {
             throw new NamespaceAlreadyExistsException('Cannot add namespace as it already exists: ' . $name);
         }
@@ -91,7 +85,7 @@ class Config implements ConfigInterface
     /**
      * @inheritDoc
      */
-    public function get(string $name, $defaultValue = null)
+    public function get(string $name, mixed $defaultValue = null): mixed
     {
         // check for any references
         $name = $this->parseReferences($name);
@@ -125,7 +119,7 @@ class Config implements ConfigInterface
     /**
      * @inheritDoc
      */
-    public function set(string $name, $value): ConfigInterface
+    public function set(string $name, mixed $value): ConfigInterface
     {
         $parts = explode('.', $name);
         $config = &$this->config;
@@ -164,7 +158,9 @@ class Config implements ConfigInterface
             }
 
             $suffixLen = strlen($suffix);
-            if (! (substr($file->getFilename(), -$suffixLen) === $suffix)) {
+
+            // Check if the file's name ends with the specified suffix
+            if (substr($file->getFilename(), -$suffixLen) !== $suffix) {
                 continue;
             }
 
@@ -175,7 +171,7 @@ class Config implements ConfigInterface
             $config[$namespace] = new File($file->getPathname());
         }
 
-        return new static($config);
+        return new self($config);
     }
 
     /**
@@ -225,10 +221,10 @@ class Config implements ConfigInterface
             'projectRoot' => $projectRoot,
         ];
 
-        return new static($config);
+        return new self($config);
     }
 
-    public function __invoke($name, $defaultValue = null)
+    public function __invoke(string $name, mixed $defaultValue = null): mixed
     {
         return $this->get($name, $defaultValue);
     }

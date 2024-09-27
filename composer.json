@@ -1,6 +1,6 @@
 {
     "name": "mizmoz/config",
-    "version": "0.5.0",
+    "version": "1.0.0",
     "homepage": "https://www.mizmoz.com/",
     "description": "Mizmoz Config",
     "type": "library",
@@ -22,9 +22,11 @@
         }
     },
     "require": {
+        "php": ">=8.3",
         "ext-mbstring": "*"
     },
     "require-dev": {
-        "phpunit/phpunit": "^6.3"
+        "phpunit/phpunit": "^11.0",
+        "phpstan/phpstan": "^1.12"
     }
 }

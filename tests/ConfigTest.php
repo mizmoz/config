@@ -10,7 +10,7 @@ class ConfigTest extends TestCase
 {
     use PreserveSystemGlobalsTrait;
 
-    public function testCreateFromArray()
+    public function testCreateFromArray(): void
     {
         $config = new Config([
             'app' => [
@@ -23,7 +23,7 @@ class ConfigTest extends TestCase
         $this->assertSame(1, $config->get('app.version', 1));
     }
 
-    public function testInvokeAccess()
+    public function testInvokeAccess(): void
     {
         $config = new Config([
             'app' => [
@@ -36,15 +36,15 @@ class ConfigTest extends TestCase
         $this->assertSame(1, $config('app.version', 1));
     }
 
-    public function testCreateFromDirectory()
+    public function testCreateFromDirectory(): void
     {
-        $config = Config::fromDirectory(realpath(__DIR__ . '/config'));
+        $config = Config::fromDirectory((string)realpath(__DIR__ . '/config'));
 
         $this->assertSame('Super App', $config->get('app.name'));
         $this->assertSame('db.servers.com', $config->get('db.default.host'));
     }
 
-    public function testAddNamespace()
+    public function testAddNamespace(): void
     {
         $config = new Config();
         $config->addNamespace('cache', [
@@ -56,7 +56,7 @@ class ConfigTest extends TestCase
         $this->assertSame('cache.host.com', $config->get('cache.memcache.host'));
     }
 
-    public function testAddOverride()
+    public function testAddOverride(): void
     {
         $config = new Config([
             'version' => '1.1.1',
@@ -83,7 +83,7 @@ class ConfigTest extends TestCase
     /**
      * Get the configuration from the supplied directory for the current environment
      */
-    public function testGetEnvironmentConfig()
+    public function testGetEnvironmentConfig(): void
     {
         $config = Config::fromEnvironment(Environment::create(__DIR__));
         $this->assertSame('Super App', $config->get('app.name'));
@@ -95,7 +95,7 @@ class ConfigTest extends TestCase
     /**
      * Test we can set values at run time
      */
-    public function testSetValue()
+    public function testSetValue(): void
     {
         $config = new Config([
             'app' => [
@@ -113,7 +113,7 @@ class ConfigTest extends TestCase
     /**
      * Test setting a value when the config requires resolving
      */
-    public function testSetValueWithResolver()
+    public function testSetValueWithResolver(): void
     {
         $config = Config::fromEnvironment(Environment::create(__DIR__))->set('app.name', 'Setter');
         $this->assertSame('Setter', $config->get('app.name'));
@@ -124,7 +124,7 @@ class ConfigTest extends TestCase
     /**
      * Test we can use the reference syntax to get values
      */
-    public function testGetWithReference()
+    public function testGetWithReference(): void
     {
         $config = new Config([
             'default' => 'mysql',
@@ -137,7 +137,7 @@ class ConfigTest extends TestCase
     /**
      * Test we can use the reference syntax to get values
      */
-    public function testGetWithDeepReference()
+    public function testGetWithDeepReference(): void
     {
         $config = new Config([
             'db' => [

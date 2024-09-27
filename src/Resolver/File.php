@@ -16,7 +16,7 @@ class File implements ResolverInterface
     /**
      * @var string
      */
-    private $filename;
+    private string $filename;
 
     /**
      * File constructor.
@@ -31,8 +31,11 @@ class File implements ResolverInterface
     /**
      * @inheritdoc
      */
-    public function resolve()
+    public function resolve(): ResolverInterface|array
     {
         return require $this->filename;
     }
 }
+
+
+

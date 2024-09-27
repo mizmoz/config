@@ -1,3 +1,7 @@
+v1.0.0
+
+- Update to use PHP 8.3
+- Add PHPStan static analysis
 
 v0.5.0
 

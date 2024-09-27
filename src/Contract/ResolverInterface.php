@@ -7,7 +7,7 @@ interface ResolverInterface
     /**
      * Resolve the item and return the config array
      *
-     * @return array|ResolverInterface
+     * @return array<string, mixed>|ResolverInterface
      */
-    public function resolve();
+    public function resolve(): ResolverInterface|array;
 }
